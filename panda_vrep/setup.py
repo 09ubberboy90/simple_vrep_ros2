@@ -14,7 +14,8 @@ setup(
         ('share/' + package_name + '/launch', glob('launch/*.launch.py')),
         ('share/' + package_name + '/config', glob('config/*.*')),
         ('share/' + package_name + '/models', glob('models/*.*')),
-        ('lib/' + package_name, [package_name+"/" + el for el in ["sim.py", "simConst.py","remoteApi.so"]])
+        ('share/' + package_name + '/urdf', glob('urdf/*.*')),
+        ('lib/' + package_name, [package_name+"/" + el for el in ["sim.py", "simConst.py","remoteApi.so", "trajectory_follower.py"]])
 
     ],
     install_requires=['setuptools'],
