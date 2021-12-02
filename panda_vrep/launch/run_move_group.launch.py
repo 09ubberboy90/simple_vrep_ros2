@@ -32,14 +32,13 @@ def load_yaml(package_name, file_path):
 def generate_launch_description():
 
     # planning_context
-    robot_description_config = xacro.process_file(
+    robot_description_config = load_file("panda_vrep", 
         os.path.join(
-            get_package_share_directory("moveit_resources_panda_moveit_config"),
-            "config",
-            "panda.urdf.xacro",
+            "urdf",
+            "panda.urdf",
         )
     )
-    robot_description = {"robot_description": robot_description_config.toxml()}
+    robot_description = {"robot_description": robot_description_config}
 
     robot_description_semantic_config = load_file(
         "panda_vrep", "config/panda.srdf"
@@ -68,7 +67,7 @@ def generate_launch_description():
 
     # Trajectory Execution Functionality
     moveit_simple_controllers_yaml = load_yaml(
-        "moveit_resources_panda_moveit_config", "config/panda_controllers.yaml"
+        "panda_vrep", "config/panda_controllers.yaml"
     )
     moveit_controllers = {
         "moveit_simple_controller_manager": moveit_simple_controllers_yaml,
@@ -143,7 +142,7 @@ def generate_launch_description():
 
     # ros2_control using FakeSystem as hardware
     ros2_controllers_path = os.path.join(
-        get_package_share_directory("moveit_resources_panda_moveit_config"),
+        get_package_share_directory("panda_vrep"),
         "config",
         "panda_ros_controllers.yaml",
     )
@@ -165,11 +164,11 @@ def generate_launch_description():
     for controller in [
         "panda_arm_controller",
         "panda_hand_controller",
-        "joint_state_broadcaster",
+        # "joint_state_broadcaster", # no need for the broadcaster since i'm doing it myself
     ]:
         load_controllers += [
             ExecuteProcess(
-                cmd=["ros2 run controller_manager spawner.py {}".format(controller)],
+                cmd=["ros2 control load_start_controller {}".format(controller)],
                 shell=True,
                 output="screen",
             )
@@ -193,8 +192,8 @@ def generate_launch_description():
             static_tf,
             robot_state_publisher,
             run_move_group_node,
-            ros2_control_node,
+            # ros2_control_node,
             mongodb_server_node,
         ]
-        + load_controllers
+        # + load_controllers
     )
