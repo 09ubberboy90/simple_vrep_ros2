@@ -113,7 +113,7 @@ class TrajectoryFollower:
             for name in self.__goal.trajectory.joint_names:
                 joint_id = self.__joints[name]
                 pos = sim.simxGetJointPosition(self.__client_id, joint_id, sim.simx_opmode_streaming)[1]
-                sim.simxSetJointPosition(self.__client_id,joint_id,pos, sim.simx_opmode_oneshot)
+                sim.simxSetJointTargetPosition(self.__client_id,joint_id,pos, sim.simx_opmode_oneshot)
                 # p.setJointMotorControl2(bodyUniqueId=self.robot_id, 
                 #                 jointIndex=joint_id, 
                 #                 controlMode=p.POSITION_CONTROL,
@@ -165,8 +165,7 @@ class TrajectoryFollower:
     def __set_joint_position(self, name, target_position:float):
         joint_id = self.__joints[name]
         # target_position = min(max(target_position, p.getJointInfo(self.robot_id, joint_id)[8]), p.getJointInfo(self.robot_id, joint_id)[9])
-        code = sim.simxSetJointPosition(self.__client_id, joint_id, target_position, sim.simx_opmode_oneshot)
-        self.__node.get_logger().info(f"{code}")
+        code = sim.simxSetJointTargetPosition(self.__client_id, joint_id, target_position, sim.simx_opmode_oneshot)
 
 
 

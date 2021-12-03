@@ -43,6 +43,7 @@ class VrepSim(Node):
         for i in range(1,8):
             name = 'Panda_joint' + str(i)
             self.joints[name.lower()]=sim.simxGetObjectHandle(self.client_id, name, sim.simx_opmode_blocking)[1]
+            self.get_logger().info(f"{name}:{self.joints[name.lower()]}")
         for i in range(1,3):
             name = 'Panda_gripper_joint' + str(i)
             saved_name = 'panda_finger_joint' + str(i)
@@ -85,6 +86,7 @@ def main(args=None):
                 "empty_2_server.ttt",
             )
         print(sim.simxLoadScene(clientID, scene_path,0, sim.simx_opmode_blocking ))
+        # sim.simxStartSimulation(clientID, sim.simx_opmode_oneshot)
 
         ## https://www.coppeliarobotics.com/helpFiles/en/remoteApiConstants.htm#functionErrorCodes
         ## 0 means server side, 1 means client side
@@ -99,7 +101,6 @@ def main(args=None):
         executor = rclpy.executors.MultiThreadedExecutor()
 
 
-        sim.simxStartSimulation(clientID, sim.simx_opmode_oneshot)
         rclpy.spin(minimal_publisher, executor=executor)        
         # Before closing the connection to CoppeliaSim, make sure that the last command sent out had time to arrive. You can guarantee this with (for example):
         sim.simxGetPingTime(clientID)
