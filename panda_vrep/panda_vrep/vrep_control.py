@@ -96,7 +96,11 @@ def main(args=None):
         print(sim.simxLoadModel(clientID, model_path,0, sim.simx_opmode_blocking ))
         minimal_publisher = VrepSim(clientID)
         
-        rclpy.spin(minimal_publisher)
+        executor = rclpy.executors.MultiThreadedExecutor()
+
+
+        sim.simxStartSimulation(clientID, sim.simx_opmode_oneshot)
+        rclpy.spin(minimal_publisher, executor=executor)        
         # Before closing the connection to CoppeliaSim, make sure that the last command sent out had time to arrive. You can guarantee this with (for example):
         sim.simxGetPingTime(clientID)
 

@@ -5,7 +5,6 @@ from trajectory_msgs.msg import JointTrajectoryPoint
 from rclpy.duration import Duration
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.node import Node
-import threading
 try:
     import sim
 except:
@@ -31,9 +30,9 @@ class TrajectoryFollower:
     def __init__(self, client_id:int, node:Node, joints:dict, controller_name: str):
         self.__node = node
         self.__client_id = client_id
-        self.threads = []
         # Config
         self.__default_tolerance = 0.05
+
 
         # Parse motor and position sensors
         self.__joints = joints
@@ -60,8 +59,6 @@ class TrajectoryFollower:
         """Handle a new goal trajectory command."""
         # Reject if joints don't match
         # make sure there is no hangign thread 
-        for thread in self.threads:
-            thread.join()
 
         for name in goal_handle.trajectory.joint_names:
             if name not in self.__joints.keys():
@@ -115,8 +112,8 @@ class TrajectoryFollower:
             # Stop motors
             for name in self.__goal.trajectory.joint_names:
                 joint_id = self.__joints[name]
-                pos = sim.simxGetJointPosition(self.__client_id, self.__joints[name], sim.simx_opmode_streaming)[1]
-                sim.simxSetJointPosition(self.__client_id,self.__joints[name],pos, sim.simx_opmode_oneshot)
+                pos = sim.simxGetJointPosition(self.__client_id, joint_id, sim.simx_opmode_streaming)[1]
+                sim.simxSetJointPosition(self.__client_id,joint_id,pos, sim.simx_opmode_oneshot)
                 # p.setJointMotorControl2(bodyUniqueId=self.robot_id, 
                 #                 jointIndex=joint_id, 
                 #                 controlMode=p.POSITION_CONTROL,
@@ -124,8 +121,6 @@ class TrajectoryFollower:
             self.__goal = None
             self.__node.get_logger().info('Goal Canceled')
             goal_handle.destroy()
-            for thread in self.threads:
-                thread.join()
             return CancelResponse.ACCEPT
         return CancelResponse.REJECT
 
@@ -169,16 +164,16 @@ class TrajectoryFollower:
 
     def __set_joint_position(self, name, target_position:float):
         joint_id = self.__joints[name]
-        # target_position = min(max(target_position, self.__node.sim.joint_positions(joint_id)[8]), p.getJointInfo(self.robot_id, joint_id)[9])
-        sim.simxSetJointPosition(self.__client_id, joint_id, target_position, sim.simx_opmode_oneshot)
-
-        # p.setJointMotorControl2(bodyUniqueId=self.robot_id, 
-        #         jointIndex=joint_id, 
-        #         controlMode=p.POSITION_CONTROL,
-        #         targetPosition = target_position)
+        # target_position = min(max(target_position, p.getJointInfo(self.robot_id, joint_id)[8]), p.getJointInfo(self.robot_id, joint_id)[9])
+        code = sim.simxSetJointPosition(self.__client_id, joint_id, target_position, sim.simx_opmode_oneshot)
+        self.__node.get_logger().info(f"{code}")
 
 
-    def multithreaded_update(self, goal_handle, feedback_message):
+
+    async def __on_update(self, goal_handle):
+        feedback_message = FollowJointTrajectory.Feedback()
+        feedback_message.joint_names = list(self.__goal.trajectory.joint_names)
+        result = FollowJointTrajectory.Result()
         while self.__goal:
             done = False
 
@@ -193,7 +188,6 @@ class TrajectoryFollower:
                 self.__node.get_logger().info('Goal Succeeded')
                 self.__goal = None
                 goal_handle.succeed()
-                result = FollowJointTrajectory.Result()
                 result.error_code = result.SUCCESSFUL
                 return result
 
@@ -205,16 +199,11 @@ class TrajectoryFollower:
             goal_handle.publish_feedback(feedback_message)
 
             time.sleep(TIME_STEP)
-
-    async def __on_update(self, goal_handle):
-        feedback_message = FollowJointTrajectory.Feedback()
-        feedback_message.joint_names = list(self.__goal.trajectory.joint_names)
-        self.threads.append(threading.Thread(target=self.multithreaded_update, args=(goal_handle, feedback_message)))
-        self.threads[-1].start()
-        result = FollowJointTrajectory.Result()
+        
         result.error_code = result.PATH_TOLERANCE_VIOLATED
         return result
 
+         
     @staticmethod
     def __is_within_tolerance(a_vec, b_vec, tol_vec):
         """Check if two vectors are equals with a given tolerance."""
