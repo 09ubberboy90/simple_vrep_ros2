@@ -1,4 +1,4 @@
-# Make sure to have the server side running in CoppeliaSim: 
+# Make sure to have the server side running in CoppeliaSim:
 # in a child script of a CoppeliaSim scene, add following command
 # to be executed just once, at simulation start:
 #
@@ -20,9 +20,10 @@ except:
     print ('--------------------------------------------------------------')
     print ('')
 
-import time
+import os
 from rclpy.node import Node
 from trajectory_follower import TrajectoryFollower
+from ament_index_python.packages import get_package_share_directory
 
 from sensor_msgs.msg import JointState
 
@@ -74,15 +75,23 @@ def main(args=None):
     print ('Program started')
     sim.simxFinish(-1) # just in case, close all opened connections
     clientID=sim.simxStart('127.0.0.1',19997,True,True,2000,5) # Connect to CoppeliaSim
+    print(f"Client id is {clientID}")
+
     if clientID!=-1:
         print ('Connected to remote API server')
 
         ## https://www.coppeliarobotics.com/helpFiles/en/remoteApiConstants.htm#functionErrorCodes
         ## 0 means server side, 1 means client side
-        print(sim.simxLoadModel(clientID, "models/robots/non-mobile/FrankaEmikaPandaGripper.ttm",0, sim.simx_opmode_blocking ))
+        model_path = os.path.join(
+                get_package_share_directory("panda_vrep"),
+                "models",
+                "FrankaEmikaPandaGripper.ttm",
+            )
+        print(sim.simxLoadModel(clientID, model_path,0, sim.simx_opmode_blocking ))
         minimal_publisher = VrepSim(clientID)
-        rclpy.spin(minimal_publisher)
         sim.simxStartSimulation(clientID, sim.simx_opmode_oneshot)
+        
+        rclpy.spin(minimal_publisher)
         # Before closing the connection to CoppeliaSim, make sure that the last command sent out had time to arrive. You can guarantee this with (for example):
         sim.simxGetPingTime(clientID)
 

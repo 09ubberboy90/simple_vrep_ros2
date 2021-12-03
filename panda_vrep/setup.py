@@ -27,7 +27,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "vrep_spawn= panda_vrep.vrep_spawn:main"
+            "vrep_control= panda_vrep.vrep_control:main"
         ],
     },
 )

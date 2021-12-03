@@ -7,8 +7,8 @@ def generate_launch_description():
     # Static TF
     spawner = Node(
         package="panda_vrep",
-        executable="vrep_spawn",
-        name="vrep_spawn",
+        executable="vrep_control",
+        name="vrep_control",
         output="log"
     )
 
