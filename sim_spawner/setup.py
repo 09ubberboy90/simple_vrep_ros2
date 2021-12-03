@@ -10,6 +10,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('lib/' + package_name, [package_name+"/" + el for el in ["sim.py", "simConst.py","remoteApi.so"]])
+
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -20,8 +22,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "sim_spawner = sim_spawner.pybullet_spawner:main",
-            "sim_throw_spawner = sim_spawner.pybullet_throw_spawner:main",
+            "sim_spawner = sim_spawner.vrep_spawner:main",
+            "sim_throw_spawner = sim_spawner.vrep_throw_spawner:main",
         ],
     },
 )

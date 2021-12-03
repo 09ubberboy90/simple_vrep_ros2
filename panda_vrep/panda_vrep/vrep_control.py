@@ -74,11 +74,17 @@ def main(args=None):
     rclpy.init()
     print ('Program started')
     sim.simxFinish(-1) # just in case, close all opened connections
-    clientID=sim.simxStart('127.0.0.1',19997,True,True,2000,5) # Connect to CoppeliaSim
+    clientID=sim.simxStart('127.0.0.1',19997,True,False,2000,5) # Connect to CoppeliaSim
     print(f"Client id is {clientID}")
 
     if clientID!=-1:
         print ('Connected to remote API server')
+        scene_path = os.path.join(
+                get_package_share_directory("panda_vrep"),
+                "models",
+                "empty_2_server.ttt",
+            )
+        print(sim.simxLoadScene(clientID, scene_path,0, sim.simx_opmode_blocking ))
 
         ## https://www.coppeliarobotics.com/helpFiles/en/remoteApiConstants.htm#functionErrorCodes
         ## 0 means server side, 1 means client side
@@ -89,7 +95,6 @@ def main(args=None):
             )
         print(sim.simxLoadModel(clientID, model_path,0, sim.simx_opmode_blocking ))
         minimal_publisher = VrepSim(clientID)
-        sim.simxStartSimulation(clientID, sim.simx_opmode_oneshot)
         
         rclpy.spin(minimal_publisher)
         # Before closing the connection to CoppeliaSim, make sure that the last command sent out had time to arrive. You can guarantee this with (for example):
