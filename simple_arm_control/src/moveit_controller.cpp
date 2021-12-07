@@ -43,19 +43,24 @@
 
 
 
-std::pair<const std::string, moveit_msgs::msg::CollisionObject> choose_target(moveit::planning_interface::PlanningSceneInterface *ps, std::set<std::string> * processed)
+std::pair<const std::string, moveit_msgs::msg::CollisionObject> 
+choose_target(moveit::planning_interface::PlanningSceneInterface *ps, std::set<std::string> * processed)
 {    
     srand ( time(NULL) ); //initialize the random seed
     auto collision_objects = ps->getObjects();
 
     for (std::set<std::string>::iterator it = processed->begin(); it != processed->end(); it++) 
     {
-        // Known as the erase remove idiom
-        collision_objects.erase(*it);
+        if ( collision_objects.find(*it) != collision_objects.end() ) 
+        {
+            // Known as the erase remove idiom
+            collision_objects.erase(*it);
+        } 
+
     }
 
-    int rand_index = rand() % (int) collision_objects.size();
-    auto chosen = *std::next(std::begin(collision_objects),rand_index-1);
+    int rand_index = rand() % (int) (collision_objects.size()-1);
+    auto chosen = *std::next(std::begin(collision_objects),rand_index);
     
     processed->emplace(chosen.first);
     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Chosen target is %s", chosen.first.c_str());
@@ -70,6 +75,7 @@ int main(int argc, char **argv)
 
     rclcpp::init(argc, argv);
     auto simple_moveit = std::make_shared<SimpleMoveIt>("panda_group_interface");
+    moveit_msgs::msg::CollisionObject collision_object;
     // For current state monitor
     rclcpp::executors::SingleThreadedExecutor executor;
     // executor.add_node(service_node);
@@ -84,11 +90,12 @@ int main(int argc, char **argv)
         auto object = choose_target(simple_moveit->get_planning_scene_interface(), &processed);
 
         auto obj_name = object.first;
-        auto collision_object = object.second;
+        collision_object = object.second;
         bool success = true;
         // set_service(service_node, client, true, obj_name); // advertise to collision
         auto pose = collision_object.primitive_poses[0];
-        Eigen::Quaternionf q = Eigen::AngleAxisf(3.14, Eigen::Vector3f::UnitX()) * Eigen::AngleAxisf(0, Eigen::Vector3f::UnitY()) * Eigen::AngleAxisf(0.785, Eigen::Vector3f::UnitZ());
+        Eigen::Quaternionf q = Eigen::AngleAxisf(3.14, Eigen::Vector3f::UnitX()) * 
+                    Eigen::AngleAxisf(0, Eigen::Vector3f::UnitY()) * Eigen::AngleAxisf(0.785, Eigen::Vector3f::UnitZ());
         pose.orientation.w = q.w();
         pose.orientation.x = q.x();
         pose.orientation.y = q.y();
@@ -121,15 +128,15 @@ int main(int argc, char **argv)
 
         if ((new_pose.position.x < pose.position.x - 0.05) || (pose.position.x + 0.05 < new_pose.position.x))
         {
-            RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Cube is not in bound");
+            RCLCPP_ERROR(rclcpp::get_logger("moveit_controller"), "Cube is not in bound");
         }
         else
         {
-            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Task completed Succesfully");
+            RCLCPP_WARN(rclcpp::get_logger("moveit_controller"), "Task completed Succesfully");
         }
     }
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Going to start pose");
-    simple_moveit->goto_pose(simple_moveit->get_move_group(), start_pose);
+    RCLCPP_WARN(rclcpp::get_logger("moveit_controller"), "Going to start pose");
+    simple_moveit->goto_pose(start_pose);
     rclcpp::shutdown();
     return 0;
 }

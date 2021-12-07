@@ -32,7 +32,8 @@ class TrajectoryFollower:
         self.__client_id = client_id
         # Config
         self.__default_tolerance = 0.05
-
+        # self.hand = True if "hand" in controller_name else False
+        self.hand = False
 
         # Parse motor and position sensors
         self.__joints = joints
@@ -125,6 +126,8 @@ class TrajectoryFollower:
         return CancelResponse.REJECT
 
     def __regulate_velocity_mode(self):
+        if self.__current_point_index >= len(self.__goal.trajectory.points):
+            return False
         curr_point = self.__goal.trajectory.points[self.__current_point_index]
 
         for index, name in enumerate(self.__goal.trajectory.joint_names):
@@ -164,9 +167,11 @@ class TrajectoryFollower:
 
     def __set_joint_position(self, name, target_position:float):
         joint_id = self.__joints[name]
-        # target_position = min(max(target_position, p.getJointInfo(self.robot_id, joint_id)[8]), p.getJointInfo(self.robot_id, joint_id)[9])
-        code = sim.simxSetJointTargetPosition(self.__client_id, joint_id, target_position, sim.simx_opmode_oneshot)
-
+        if self.hand:
+            self.__node.get_logger().info(f"set {joint_id} @ {target_position}")
+            code = sim.simxSetJointTargetVelocity(self.__client_id, joint_id, target_position, sim.simx_opmode_oneshot)
+        else:
+            code = sim.simxSetJointTargetPosition(self.__client_id, joint_id, target_position, sim.simx_opmode_oneshot)
 
 
     async def __on_update(self, goal_handle):

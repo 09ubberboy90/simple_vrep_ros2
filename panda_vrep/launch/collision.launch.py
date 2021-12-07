@@ -52,6 +52,7 @@ def generate_launch_description():
                                         kinematics_yaml,
                                         {"use_spawn_obj": True},
                                         {"gazebo": False}, {"use_sim_time":False},],
+                            arguments=['--ros-args', '--log-level', 'WARN'],
                             # prefix=['gdbserver localhost:3000'],
                             )
 

@@ -154,7 +154,7 @@ int main(int argc, char **argv)
                     primitive.dimensions[0] = 0.05;
                     primitive.dimensions[1] = 0.05;
                     primitive.dimensions[2] = 0.05;
-                    height = 0;
+                    height = 0; // reason is that rviz uses center of mass while vrep advertise as bottom
                 }
                 obj.primitives.push_back(primitive);
                 obj_height[obj.id] = height;

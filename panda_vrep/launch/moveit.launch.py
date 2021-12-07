@@ -47,7 +47,8 @@ def generate_launch_description():
                                            kinematics_yaml,
                                            {"action_node_name": "/panda_arm_controller/follow_joint_trajectory"},
                                            {"use_spawn_obj": True},{"gazebo": False}, {"use_sim_time":False}],
-                            #   prefix=['gdbserver localhost:3000']
+                                arguments=['--ros-args', '--log-level', 'WARN'],
+                            #    prefix=['valgrind --leak-check=yes']
                             )
     
     return LaunchDescription([run_move_group_demo])

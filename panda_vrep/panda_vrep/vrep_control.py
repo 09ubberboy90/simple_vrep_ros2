@@ -41,17 +41,17 @@ class VrepSim(Node):
         self.hand_joints = {}
 
         for i in range(1,8):
-            name = 'Panda_joint' + str(i)
+            name = 'panda_joint' + str(i)
             self.joints[name.lower()]=sim.simxGetObjectHandle(self.client_id, name, sim.simx_opmode_blocking)[1]
-            self.get_logger().info(f"{name}:{self.joints[name.lower()]}")
         for i in range(1,3):
             name = 'Panda_gripper_joint' + str(i)
             saved_name = 'panda_finger_joint' + str(i)
 
-            self.hand_joints[saved_name]=sim.simxGetObjectHandle(self.client_id, name, sim.simx_opmode_blocking)[1]
+            self.hand_joints[saved_name]=sim.simxGetObjectHandle(self.client_id, saved_name, sim.simx_opmode_blocking)[1]
+            self.get_logger().info(f"{name}:{self.hand_joints[saved_name]}")
 
         self.follower = TrajectoryFollower(self.client_id, self, self.joints, "panda_arm_controller")
-        self.follower = TrajectoryFollower(self.client_id, self, self.hand_joints, "panda_hand_controller")
+        self.hand_follower = TrajectoryFollower(self.client_id, self, self.hand_joints, "panda_hand_controller")
         self.joints.update(self.hand_joints)
 
 
@@ -93,7 +93,7 @@ def main(args=None):
         model_path = os.path.join(
                 get_package_share_directory("panda_vrep"),
                 "models",
-                "FrankaEmikaPandaGripper.ttm",
+                "panda_urdf.ttm",
             )
         print(sim.simxLoadModel(clientID, model_path,0, sim.simx_opmode_blocking ))
         minimal_publisher = VrepSim(clientID)
