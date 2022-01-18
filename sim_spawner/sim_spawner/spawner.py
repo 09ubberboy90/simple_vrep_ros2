@@ -43,14 +43,14 @@ class SpawnerNode(Node):
         self.model = self.create_service(
             GetModelList, 'get_model_list', self.get_model_list)
         self.objs = {}
-        self.spawn_obj(table_path, offset=[0.6, 0, 0.2], rotation= [ 0, 0, 0.7068252, 0.7073883 ]) # 90 degree around z
+        self.spawn_obj(table_path, offset=[0.65, 0, 0.3], rotation= [ 0, 0, 0.7068252, 0.7073883 ]) # 90 degree around z
         # for i in range(-5,6):
         #     for j in range(-5,6):
         #         print(f"Spawned at {i*0.5} {j*0.5}")
         #         self.spawn_obj("worlds/Cube.wbo", position = [i, 0, j])
-        for x in range(3, 6):
+        for x in range(2, 5):
             for y in range(-3, 4):
-                self.spawn_obj(cube_path, [x/10, y/10, 0.4])
+                self.spawn_obj(cube_path, [x/10, y/10, 0.45])
 
         sim.simxStartSimulation(self.client_id, sim.simx_opmode_oneshot)
 

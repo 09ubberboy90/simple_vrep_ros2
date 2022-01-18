@@ -50,7 +50,7 @@ def generate_launch_description():
     
     sim_spawner = Node(name='sim_spawner',
                             package='sim_spawner',
-                            executable='sim_spawner',
+                            executable='spawner',
                             output='screen')
 
     moveit_collision = Node(name='moveit_collision',

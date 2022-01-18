@@ -144,7 +144,7 @@ int main(int argc, char **argv)
                     primitive.dimensions[0] = 1.5;
                     primitive.dimensions[1] = 1;
                     primitive.dimensions[2] = 0.6;
-                    height = primitive.dimensions[2]; // reason is that rviz uses center of mass while webots table uses bottom position
+                    height = -primitive.dimensions[2]; // reason is that rviz uses center of mass while webots table uses bottom position
                 }
                 else // cube
                 {

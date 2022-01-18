@@ -52,11 +52,12 @@ class Vrep():
         self.timeout = 300 # 5 minute
         self.commands = [
             "ros2 launch panda_vrep panda.launch.py",
+            "ros2 run panda_vrep vrep_control",
             "ros2 launch panda_vrep collision.launch.py",
             "ros2 launch panda_vrep run_move_group.launch.py",
             "ros2 launch panda_vrep moveit_controller.launch.py",
         ]
-        self.delays = [5, 5, 7]
+        self.delays = [5, 5, 5, 7]
 
 
 

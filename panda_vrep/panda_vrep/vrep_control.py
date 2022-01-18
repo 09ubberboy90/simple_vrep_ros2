@@ -33,7 +33,7 @@ TIME_STEP = 0.05
 class VrepSim(Node):
 
     def __init__(self, client_id):
-        super().__init__('PyBulletSim')
+        super().__init__('VrepSim')
         self.publisher = self.create_publisher(JointState, "/joint_states", 10)
         self.timer = self.create_timer(TIME_STEP, self.step)
         self.client_id = client_id
@@ -48,7 +48,7 @@ class VrepSim(Node):
             saved_name = 'panda_finger_joint' + str(i)
 
             self.hand_joints[saved_name]=sim.simxGetObjectHandle(self.client_id, saved_name, sim.simx_opmode_blocking)[1]
-            self.get_logger().info(f"{name}:{self.hand_joints[saved_name]}")
+            # self.get_logger().info(f"{name}:{self.hand_joints[saved_name]}")
 
         self.follower = TrajectoryFollower(self.client_id, self, self.joints, "panda_arm_controller")
         self.hand_follower = TrajectoryFollower(self.client_id, self, self.hand_joints, "panda_hand_controller")
@@ -87,6 +87,7 @@ def main(args=None):
             )
         print(sim.simxLoadScene(clientID, scene_path,0, sim.simx_opmode_blocking ))
         # sim.simxStartSimulation(clientID, sim.simx_opmode_oneshot)
+        sim.simxSetIntegerParameter(clientID, sim.sim_intparam_dynamic_engine, 3, sim.simx_opmode_oneshot) # Newton
 
         ## https://www.coppeliarobotics.com/helpFiles/en/remoteApiConstants.htm#functionErrorCodes
         ## 0 means server side, 1 means client side
