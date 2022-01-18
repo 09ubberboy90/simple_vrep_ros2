@@ -4,7 +4,6 @@ from launch.actions import ExecuteProcess
 
 def generate_launch_description():
 
-    # Static TF
     spawner = Node(
         package="panda_vrep",
         executable="vrep_control",
