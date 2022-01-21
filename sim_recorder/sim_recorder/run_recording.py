@@ -49,15 +49,11 @@ import re
 class Vrep():
     def __init__(self):
         self.name = "vrep"
-        self.timeout = 300 # 5 minute
+        self.timeout = 300 # 6 minute
         self.commands = [
-            "ros2 launch panda_vrep panda.launch.py",
-            "ros2 run panda_vrep vrep_control",
-            "ros2 launch panda_vrep collision.launch.py",
-            "ros2 launch panda_vrep run_move_group.launch.py",
-            "ros2 launch panda_vrep moveit_controller.launch.py",
+            "ros2 launch panda_vrep stack_cubes.launch.py",
         ]
-        self.delays = [5, 5, 5, 7]
+        self.delays = [] #added the timer delay from launch file + 10 s for robot movement
 
 
 
@@ -102,10 +98,10 @@ def run_recorder(q, interrupt_event, simulator, idx, path):
 
 def generate_procs(simulator, commands, r, w, q, interrupt_event, idx, path):
     procs = []
-    for com in commands:
-        procs.append(Process(target=run_com, args=(w, q, com), name=com))
     procs.append(Process(target=run_recorder, args=(
         q, interrupt_event, simulator, idx, path), daemon=True, name="Recorder"))
+    for com in commands:
+        procs.append(Process(target=run_com, args=(w, q, com), name=com))
     return procs
 
 
@@ -114,7 +110,6 @@ def start_proces(delay, procs, q):
     for _ in range(len(procs) - len(delay)):
         delay.append(0)
     for idx, p in enumerate(procs):
-        print(p.name)
         p.start()
         time.sleep(delay[idx])
 
@@ -141,21 +136,25 @@ def run(sim, idx, path):
     pids = start_proces(sim.delays, procs, q)
     signal.signal(signal.SIGALRM, handler)
     signal.alarm(sim.timeout)
+
+    start_time = time.time()
     with open(path+f"/{sim.name}/log/{idx}.txt", "w") as f,\
             open(path+f"/{sim.name}/run.txt", "a") as out:
         try:
             while True:
                 text = reader.readline()
                 f.write(text)
+                if "Starting timer" in text:
+                    start_exec_time = time.time() - start_time
                 if "Task executed successfully" in text:
                     timing = [int(s) for s in re.findall(r'\b\d+\b', text)][-1]
-                    log(out, f"Completed for {idx} in {timing} ms")
+                    log(out, f"Completed for {idx} in {timing} ms. Task started {start_exec_time*1000:.0f} ms after start")
                     signal.alarm(0)
                     kill_proc_tree(pids, procs, interrupt_event)
                     return 1, 0
                 if "Task failed" in text: 
                     numbers = [int(s) for s in re.findall(r'\b\d+\b', text)]
-                    log(out, f"Failed for {idx} in {numbers[-1]} ms with {numbers[-2]} cube stacked")
+                    log(out, f"Failed for {idx} in {numbers[-1]} ms with {numbers[-2]} cube stacked. Task started {start_exec_time*1000:.0f} ms after start")
                     signal.alarm(0)
                     kill_proc_tree(pids, procs, interrupt_event)
                     return 0, 1
@@ -176,6 +175,7 @@ def main(args=None):
         iteration = int(sys.argv[1])
     else:
         iteration = 1
+    # TODO: replace once symlink is fixed. OR find a better way
     dir_path = os.path.dirname(os.path.realpath(__file__))
     path = os.path.join(dir_path, "..", "data")
     try:

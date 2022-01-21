@@ -75,7 +75,7 @@ def main(args=None):
     rclpy.init()
     print ('Program started')
     sim.simxFinish(-1) # just in case, close all opened connections
-    clientID=sim.simxStart('127.0.0.1',19997,True,False,2000,5) # Connect to CoppeliaSim
+    clientID=sim.simxStart('127.0.0.1',19997,True,False,20000,5) # Connect to CoppeliaSim
     print(f"Client id is {clientID}")
 
     if clientID!=-1:

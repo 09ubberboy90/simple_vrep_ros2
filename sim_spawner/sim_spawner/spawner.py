@@ -51,6 +51,7 @@ class SpawnerNode(Node):
         for x in range(2, 5):
             for y in range(-3, 4):
                 self.spawn_obj(cube_path, [x/10, y/10, 0.45])
+        sim.simxSetBooleanParameter(self.client_id, sim.sim_boolparam_realtime_simulation, True, sim.simx_opmode_oneshot)
 
         sim.simxStartSimulation(self.client_id, sim.simx_opmode_oneshot)
 
