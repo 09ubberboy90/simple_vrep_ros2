@@ -26,7 +26,9 @@ from trajectory_follower import TrajectoryFollower
 from ament_index_python.packages import get_package_share_directory
 
 from sensor_msgs.msg import JointState
-
+from rosgraph_msgs.msg import Clock
+from rclpy.time import Time
+from std_msgs.msg import Float32
 
 TIME_STEP = 0.05
 
@@ -35,6 +37,8 @@ class VrepSim(Node):
     def __init__(self, client_id):
         super().__init__('VrepSim')
         self.publisher = self.create_publisher(JointState, "/joint_states", 10)
+        self.clock_pub = self.create_publisher(Clock, "/clock", 10)
+        self.clock_sub = self.create_subscription(Float32, "/simulationTime",self.clock_callback, 10)
         self.timer = self.create_timer(TIME_STEP, self.step)
         self.client_id = client_id
         self.joints = {}
@@ -53,6 +57,12 @@ class VrepSim(Node):
         self.follower = TrajectoryFollower(self.client_id, self, self.joints, "panda_arm_controller")
         self.hand_follower = TrajectoryFollower(self.client_id, self, self.hand_joints, "panda_hand_controller")
         self.joints.update(self.hand_joints)
+
+
+    def clock_callback(self, inmsg):
+        msg = Clock()
+        msg.clock = Time(nanoseconds=inmsg.data*1e9).to_msg()
+        self.clock_pub.publish(msg)
 
 
 
