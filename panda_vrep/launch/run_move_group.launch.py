@@ -106,6 +106,8 @@ def generate_launch_description():
             moveit_controllers,
             planning_scene_monitor_parameters,
         ],
+        arguments=['--ros-args', '--log-level', 'warn'],
+
     )
 
     # RViz
@@ -117,7 +119,7 @@ def generate_launch_description():
         executable="rviz2",
         name="rviz2",
         output="log",
-        arguments=["-d", rviz_config_file],
+        arguments=["-d", rviz_config_file, '--ros-args', '--log-level', 'warn'],
         parameters=[
             robot_description,
             robot_description_semantic,

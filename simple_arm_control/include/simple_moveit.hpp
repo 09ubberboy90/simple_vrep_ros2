@@ -41,7 +41,7 @@
 enum gripper_state
 {
     opened = 35,
-    closed = 0
+    closed = 10
 };
 
 class SimpleMoveIt : public rclcpp::Node

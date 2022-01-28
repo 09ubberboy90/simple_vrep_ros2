@@ -72,7 +72,6 @@ def kill_proc_tree(pids, procs, interrupt_event, including_parent=False):
     time.sleep(2)  # Wait for everything ot close to prevent broken_pipe
     for proc in procs[:2]:
         os.kill(proc.pid,signal.SIGINT)
-        proc.terminate()
     for proc in procs[2:]:
         proc.kill()
     time.sleep(2)  # Wait for everything ot close to prevent broken_pipe

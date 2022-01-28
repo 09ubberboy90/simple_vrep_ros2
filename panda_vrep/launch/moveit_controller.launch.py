@@ -48,16 +48,16 @@ def generate_launch_description():
         "moveit_resources_panda_moveit_config", "config/kinematics.yaml"
     )
     # MoveGroupInterface demo executable
-    run_move_group_demo = Node(name='move_group',
+    moveit_controller = Node(name='moveit_controller',
                                package='simple_arm_control',
                                executable='moveit_controller',
                                output='screen',
                                parameters=[robot_description,
                                            robot_description_semantic,
                                            kinematics_yaml,
+                                           {"height": 2, "columns" : 3},
                                            ],
-                                # arguments=['--ros-args', '--log-level', 'WARN'],
-                            #    prefix=['valgrind --leak-check=yes']
+                            #   prefix=['gdbserver localhost:3000']
                             )
     
-    return LaunchDescription([run_move_group_demo])
+    return LaunchDescription([moveit_controller])
