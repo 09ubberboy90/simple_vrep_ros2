@@ -45,7 +45,7 @@ class SpawnerNode(Node):
         self.objs = {}
         self.spawn_obj(cube_path, position=[1.5,0.065,0.025])
         
-        self.spawn_obj(sphere_path, position=[0.5,0.0,0.025], param_name="target") # target must be second to spawn
+        self.spawn_obj(cube_path, position=[0.5,0.0,0.025], param_name="target") # target must be second to spawn
 
         self.spawn_obj(cube_path, position=[1.5,0.0,0.025])
         self.spawn_obj(cube_path, position=[1.5,-0.065,0.025])

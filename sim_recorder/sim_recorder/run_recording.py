@@ -51,7 +51,7 @@ import re
 class Vrep():
     def __init__(self):
         self.name = "vrep"
-        self.timeout = 600 # 10 minute
+        self.timeout = 900 # 10 minute
         self.commands = [
             "ros2 launch panda_vrep stack_cubes.launch.py",
         ]
