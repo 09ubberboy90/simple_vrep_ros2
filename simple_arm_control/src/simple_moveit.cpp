@@ -151,12 +151,15 @@ bool SimpleMoveIt::throw_obj(std::string name, double release_percentage )
                    "panda_joint6",
                    "panda_joint7"};
     joints.position= {0.0,
-                    -1.75,
+                    -1.65,
                     0.0,
                     -0.1,
                     0.0,
                     3.6,
                     0.8};
+    move_group.setMaxVelocityScalingFactor(0.5);
+    move_group.setMaxAccelerationScalingFactor(0.5);
+
     // Go back 
     goto_joint_pose(&move_group, joints);
 

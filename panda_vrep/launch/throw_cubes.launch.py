@@ -5,20 +5,22 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription, LaunchDescriptionSource
 from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
 
 
 
 def generate_launch_description():
     pkg_name = "panda_vrep"
     pkg_share = get_package_share_directory(pkg_name)
-
+    gui = LaunchConfiguration("gui")
 
     panda = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_share, 'launch', 'panda.launch.py'),
-        ),)
-
+            os.path.join(pkg_share, 'launch', 'panda.launch.py'),),
+            launch_arguments=[
+                ("gui", gui),
+            ],)
 
     run_move_group_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -54,6 +56,11 @@ def generate_launch_description():
     ])))
 
     return LaunchDescription([
+        DeclareLaunchArgument(
+        'gui',
+        default_value="true",
+        description='GUI'),
+
         panda,
         TimerAction(
             period=5.,
