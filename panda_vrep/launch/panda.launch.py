@@ -1,9 +1,8 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import ExecuteProcess
-from launch.conditions import IfCondition
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PythonExpression
 
 def generate_launch_description():
 
@@ -15,14 +14,10 @@ def generate_launch_description():
     )
 
     gui = LaunchConfiguration("gui")
-    bool = None
-    if not IfCondition(gui):
-        bool = True
-    else:
-        bool = False
-
+    vrep_com = "LD_LIBRARY_PATH=$COPPELIASIM_ROOT_DIR:$LD_LIBRARY_PATH QT_QPA_PLATFORM_PLUGIN_PATH=${COPPELIASIM_ROOT} $COPPELIASIM_ROOT_DIR/coppeliaSim.sh"
+    tmp = PythonExpression(['"',vrep_com, '" + " -h" if "', gui, '" == "false" else "', vrep_com,'"'])
     vrep=ExecuteProcess(
-        cmd=["LD_LIBRARY_PATH=$COPPELIASIM_ROOT_DIR:$LD_LIBRARY_PATH QT_QPA_PLATFORM_PLUGIN_PATH=${COPPELIASIM_ROOT} $COPPELIASIM_ROOT_DIR/coppeliaSim.sh" + (" -h" if bool else "")],
+        cmd=[tmp],
         shell=True,
         output="log",
     )

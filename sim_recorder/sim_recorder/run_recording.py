@@ -50,11 +50,11 @@ import _thread
 import threading
 import re
 class Vrep():
-    def __init__(self, gui=False):
-        self.name = "vrep" + ("_gui" if gui else "")
-        self.timeout = 900 # 6 minute
+    def __init__(self, gui=False, throw = False):
+        self.name = "vrep" +("_throw" if throw else "") + ("_gui" if gui else "")
+        self.timeout = 900 if not throw else 600
         self.commands = [
-            f"ros2 launch panda_vrep stack_cubes.launch.py gui:={str(gui).lower()}"
+            f"ros2 launch panda_vrep {'throw' if throw else 'stack'}_cubes.launch.py gui:={str(gui).lower()}"
         ]
         self.delays = [5] #added the timer delay from launch file + 10 s for robot movement
 
@@ -181,10 +181,12 @@ def main(args=None):
                         help='Allow to start the simulation at a different index then 1')
     parser.add_argument('--headless', action='store_true',
                         help='Whetever to render to a GUI or not')
+    parser.add_argument('-t', '--throw', action='store_true',
+                        help='If enabled run the throw simulation')
 
     args = parser.parse_args()
     gui = True if not args.headless else False
-    sim = Vrep(gui)
+    sim = Vrep(gui, args.throw)
     dir_path = os.path.dirname(os.path.realpath(__file__))
     path = os.path.join(dir_path, "..")
     try:
