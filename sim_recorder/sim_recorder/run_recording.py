@@ -191,30 +191,30 @@ def main(args=None):
     path = os.path.join(dir_path, "..")
     try:
         os.mkdir(path+"/data")
-    except:
-        pass
+    except Exception as e:
+        print(f"Error {e}")
     path = os.path.join(dir_path, "..", "data")
     try:
         os.mkdir(path+f"/{sim.name}")
     except Exception as e:
-        pass
+        print(f"Error {e}")
     try:
         os.mkdir(path+f"/{sim.name}/log")
     except Exception as e:
-        pass
+        print(f"Error {e}")
     try:
         os.mkdir(path+f"/{sim.name}/ram")
     except Exception as e:
-        pass
+        print(f"Error {e}")
     try:
         os.mkdir(path+f"/{sim.name}/cpu")
     except Exception as e:
-        pass
+        print(f"Error {e}")
     try:
         os.mkdir(path+f"/{sim.name}/clock")
-    except:
-        pass
-    if os.path.exists(path+f"/{sim.name}/run.txt"):
+    except Exception as e:
+        print(f"Error {e}")
+    if os.path.exists(path+f"/{sim.name}/run.txt") and args.start_index == 1:
         os.remove(path+f"/{sim.name}/run.txt")
 
     for idx in range(args.start_index, args.iterations+1):
