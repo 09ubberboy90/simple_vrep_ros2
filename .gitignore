@@ -2,3 +2,4 @@ __pycache__/
 *.py[cod]
 *$py.class
 sim_recorder/data/**
+sim_ros2_interface
