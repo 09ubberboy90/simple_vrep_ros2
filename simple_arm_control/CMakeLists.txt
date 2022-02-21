@@ -22,6 +22,7 @@ find_package(moveit_ros_planning_interface REQUIRED)
 find_package(gazebo_msgs REQUIRED)
 find_package(simple_interface REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(backward_ros REQUIRED)
 
 
 install(DIRECTORY

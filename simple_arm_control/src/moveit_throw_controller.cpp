@@ -49,6 +49,8 @@ bool check_object_pose(geometry_msgs::msg::Pose * current_pose, geometry_msgs::m
         (current_pose->position.y < target_pose->position.y - 0.05) || (target_pose->position.y + 0.05 < current_pose->position.y)) 
         // No need to check height since if its in position then it can only be on top of the other cube
     {
+        RCLCPP_INFO(rclcpp::get_logger("panda_moveit_controller"), "X : %f, %f", current_pose->position.x , target_pose->position.x);
+        RCLCPP_INFO(rclcpp::get_logger("panda_moveit_controller"), "Y: %f, %f", current_pose->position.y , target_pose->position.y);
         RCLCPP_ERROR(rclcpp::get_logger("panda_moveit_controller"), "Cube is not in bound");
         return false;
     }
@@ -117,14 +119,18 @@ int main(int argc, char **argv)
     pose.orientation.z = q.z();
     pose.position.z += 0.1;
 
+    do
+    {
+        poses = simple_moveit->get_planning_scene_interface()->getObjects();
+    } while (poses.size() <= 0);
 
     success = simple_moveit->pick(obj_name, pose);
+    poses = simple_moveit->get_planning_scene_interface()->getObjects();
 
     if (!success)
     {
         failure += 1;//Handle failure
     }
-    
     success = simple_moveit->throw_obj(obj_name);
 
     
@@ -144,14 +150,29 @@ int main(int argc, char **argv)
 
     for (const auto& imap : collision_objects)
     {
-        if (!check_object_pose(&collision_objects[imap.first].primitive_poses[0], &poses[imap.first].primitive_poses[0]))
+        if (poses.find(imap.first) == poses.end())
+        {
+            RCLCPP_INFO(rclcpp::get_logger("panda_moveit_controller"), "Could not find %s", imap.first.c_str());
+            continue;
+        }
+
+        RCLCPP_INFO(rclcpp::get_logger("panda_moveit_controller"),"%s", imap.first.c_str());
+        if (!check_object_pose(&collision_objects[imap.first].primitive_poses[0], &poses[imap.first].primitive_poses[0]) && imap.first.compare("target") != 0)
         {
             moved += 1;
         }
     }
-    auto new_pose = simple_moveit->get_planning_scene_interface()->getObjects({obj_name})[obj_name].primitive_poses[0];
 
-    auto target_moved = check_object_pose(&new_pose, &pose);
+    bool target_moved;
+    try
+    {
+        auto new_pose = simple_moveit->get_planning_scene_interface()->getObjects({obj_name})[obj_name].primitive_poses[0];
+        target_moved = check_object_pose(&new_pose, &pose);
+    }
+    catch(const std::exception& e)
+    {
+        target_moved = false;
+    }
     
     RCLCPP_INFO(rclcpp::get_logger("panda_moveit_controller"), 
     "%d cubes moved out of 6. Original cube %s. %d moveit failure",moved, target_moved ? "is still in place" : "moved", failure);

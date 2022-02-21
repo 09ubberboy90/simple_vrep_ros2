@@ -46,12 +46,12 @@ class SpawnerNode(Node):
         
         self.spawn_obj(cube_path, position=[0.5,0.0,0.025], param_name="target") # target must be second to spawn
 
-        self.spawn_obj(cube_path, position=[1.2,0.065,0.025])
-        self.spawn_obj(cube_path, position=[1.2,0.0,0.025])
-        self.spawn_obj(cube_path, position=[1.2,-0.065,0.025])
-        self.spawn_obj(cube_path, position=[1.2,-0.0335,0.075])
-        self.spawn_obj(cube_path, position=[1.2,0.0335,0.075])
-        self.spawn_obj(cube_path, position=[1.2,0.0,0.135])
+        self.spawn_obj(cube_path, position=[1.1,0.065,0.025])
+        self.spawn_obj(cube_path, position=[1.1,0.0,0.025])
+        self.spawn_obj(cube_path, position=[1.1,-0.065,0.025])
+        self.spawn_obj(cube_path, position=[1.1,-0.0335,0.075])
+        self.spawn_obj(cube_path, position=[1.1,0.0335,0.075])
+        self.spawn_obj(cube_path, position=[1.1,0.0,0.135])
         sim.simxSetBooleanParameter(self.client_id, sim.sim_boolparam_realtime_simulation, True, sim.simx_opmode_oneshot)
 
         sim.simxStartSimulation(self.client_id, sim.simx_opmode_oneshot)
