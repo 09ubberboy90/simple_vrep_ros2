@@ -39,6 +39,8 @@ Furthermore, the following packages are required.
 Clone this repository and import submodules. Then install dependencies and build with [colcon](https://colcon.readthedocs.io).
 
 ```bash
+# Install pyquaternion
+pip install pyquaternion
 # Clone this repository and the submodules into your favourite ROS 2 workspace
 git clone --recurse-submodules https://github.com/09ubberboy90/simple_vrep_ros2.git
 # Install external dependencies via rosdep
